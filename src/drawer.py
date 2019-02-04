@@ -6,29 +6,19 @@ class Pen:
         self.__lrm = LargeMotor(OUTPUT_A)
         self.isUp = False
         self.loading = False
-        self.speed = 1
+        self.baseSpeed = 40
         self.ll = 0
         self.lr = 5
         pass
 
-    def up(self):
-        # 抬起笔
-        print('up', self.isUp)
-        if self.loading or self.isUp:
-            return
-
-        self.__udm.on_for_rotations(SpeedPercent(75), 1)
+    def up(self, d=0.6):
+        self.__udm.on_for_rotations(SpeedPercent(75), d)
         self.isUp = True
 
-    def down(self):
+    def down(self, d=0.6):
         # 放下笔
-        print('down', self.isUp)
-        if self.loading or not self.isUp:
-            return
-
-        self.__udm.on_for_rotations(SpeedPercent(75), -1)
+        self.__udm.on_for_rotations(SpeedPercent(75), -d)
         self.isUp = False
-        pass
 
     def load(self):
         if self.loading:
@@ -48,26 +38,30 @@ class Pen:
         # 调整放下笔的角度，angle正数为放下，负数为抬起
         pass
 
-    def move(self, d):
+    def move(self, d, speed=1):
         # 笔移动距离d，正数向右，负数向左
-        self.__lrm.on_for_rotations(SpeedPercent(75), d, block=False)
+        if d == 0:
+            return
+        self.__lrm.on_for_rotations(SpeedPercent(self.baseSpeed*speed), d, block=False)
 
     def moveToLeft(self):
         # 移动笔的位置到最左边，用于结束绘制后移动到最左边
         pass
 
-    def waitMove(self):
+    def waitMove(self, t=None):
         # 等待笔左移右移结束
-        self.__lrm.wait_until_not_moving()
+        self.__lrm.wait_until_not_moving(t)
 
 class Paper:
     def __init__(self):
-        self.speed = 1
-        pass
+        self.baseSpeed = 40
+        self.__r = 0.713 # x = 4.85, y = 6.80, x / y == 0.713
+        self.__m = LargeMotor(OUTPUT_C)
 
-    def scroll(self, d, speed):
-        # 滚动距离d，正数向前，复数向后
-        pass
+    def scroll(self, d, speed=1):
+        if d == 0:
+            return
+        self.__m.on_for_rotations(SpeedPercent(self.baseSpeed*speed*self.__r), -d*self.__r, block=False)
 
     def scrollOut(self):
         # 把纸张送出去
@@ -77,11 +71,61 @@ class Paper:
         # 滚动到读取到纸张的位置，如果读到纸张返回True，不然返回False
         pass
 
-    def waitScroll(self, d):
+    def waitScroll(self, t=None):
         # 等待滚动完成
-        pass
+        self.__m.wait_until_not_moving(t)
+
+def test():
+    import time
+    paper = Paper()
+    pen = Pen()
+    pen.down()
+
+    pen.move(1.5)
+    pen.waitMove()
+    time.sleep(0.1)
+
+    paper.scroll(1.5)
+    paper.waitScroll()
+    time.sleep(0.1)
+
+    pen.move(-1.5)
+    pen.waitMove()
+    time.sleep(0.1)
+
+    paper.scroll(-1.5)
+    paper.waitScroll()
+
+    pen.up()
+
+def test2():
+    import time
+    paper = Paper()
+    pen = Pen()
+    pen.down()
+
+    pen.move(1.5)
+    pen.waitMove()
+    time.sleep(0.1)
+
+    paper.scroll(1.5)
+    pen.move(-1.5)
+    paper.waitScroll()
+    pen.waitMove()
+    time.sleep(0.1)
+
+    pen.move(1.5)
+    pen.waitMove()
+    time.sleep(0.1)
+
+    paper.scroll(-1.5)
+    pen.move(-1.5)
+    paper.waitScroll()
+    pen.waitMove()
+
+    pen.up()
+
 
 if __name__ == '__main__':
-    pen = Pen()
-    pen.move(-0.2)
-    pen.waitMove()
+    test()
+
