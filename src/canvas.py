@@ -83,8 +83,8 @@ class Canvas:
         else:
             speedX = speedX / speedY
             speedY = 1
-        self.paper.scroll(dy, speedY)
         self.pen.move(dx, speedX)
+        self.paper.scroll(dy, speedY)
         self.pen.waitMove(int(l*30000))
         self.paper.waitScroll(int(l*30000))
         self.curX = x

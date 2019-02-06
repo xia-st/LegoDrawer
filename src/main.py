@@ -16,7 +16,7 @@ def rounds(path):
 
     return minX, minY, maxX, maxY
 
-paths = json.load(open('star.json'))
+paths = json.load(open('pig.json'))
 
 maxX = 0
 maxY = 0
@@ -61,3 +61,5 @@ for path in paths:
     c.penUp()
 
 c.goto(0, 0)
+c.paper.scroll(-3)
+c.paper.waitScroll()
