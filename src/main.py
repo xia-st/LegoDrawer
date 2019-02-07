@@ -16,7 +16,7 @@ def rounds(path):
 
     return minX, minY, maxX, maxY
 
-paths = json.load(open('pig.json'))
+paths = json.load(open('pic/star.json'))
 
 maxX = 0
 maxY = 0
